@@ -1,0 +1,75 @@
+<template lang="html">
+  <div class="home-container">
+    <app-carousel></app-carousel>
+    <app-products></app-products>
+    <div ref="scrolltarget"></div>
+  </div>
+</template>
+
+<script>
+import Carousel from './Carousel.vue';
+import Products from './Products.vue';
+import axios from 'axios';
+
+export default {
+  components: {
+    appCarousel: Carousel,
+    appProducts: Products
+  },
+  data(){
+    return {
+      myObserver: null
+    }
+  },
+  methods: {
+    scrollTrigger(){
+      this.myObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if(entry.isIntersecting){
+            const cockpitToken = '85c29250363d95b2b63ff2c7cb2016';
+            axios.post(`http://localhost:8080/api/collections/get/products?token=${cockpitToken}`, {
+              limit: 10,
+              skip: this.$store.getters.getSkipAmount,
+              sort: {_created: -1},
+            })
+            .then((res) => {
+              this.$store.dispatch('setProducts', res.data.entries);
+              this.$store.dispatch('updateSkipAmount');
+            })
+          }
+        })
+      })
+      this.myObserver.observe(this.$refs.scrolltarget);
+    }
+  },
+  created(){
+    const cockpitToken = '85c29250363d95b2b63ff2c7cb2016';
+    axios.post(`http://localhost:8080/api/collections/get/products?token=${cockpitToken}`, {
+      limit: 10,
+      skip: this.$store.getters.getSkipAmount,
+      sort: {_created: -1},
+    })
+    .then((res) => {
+      console.log(res.data.entries);
+      this.$store.dispatch('setProducts', res.data.entries);
+      this.$store.dispatch('updateSkipAmount');
+      this.scrollTrigger();
+    })
+  },
+  beforeDestroy(){
+    console.log('before')
+    this.myObserver.unobserve(this.$refs.scrolltarget);
+  }
+}
+</script>
+
+<style lang="css" scoped>
+.home-container{
+  /* position: relative; */
+  background: rgb(34,38,41);
+  background: linear-gradient(32deg, rgba(34,38,41,1) 16%, rgba(71,75,79,1) 82%);
+}
+img{
+  width: 100%;
+}
+</style>
