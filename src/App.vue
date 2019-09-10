@@ -12,6 +12,9 @@ export default {
   name: 'app',
   components: {
     appHeader: Header
+  },
+  created(){
+    this.$store.dispatch('cartInit');
   }
 }
 </script>

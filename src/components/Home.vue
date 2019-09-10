@@ -1,27 +1,39 @@
 <template lang="html">
   <div class="home-container">
     <app-carousel></app-carousel>
-    <app-products></app-products>
-    <div ref="scrolltarget"></div>
+    <app-search :searchValue="searchValue" :changeSearchValue="changeSearchValue"></app-search>
+    <app-products :searchValue="searchValue"></app-products>
+    <div ref="scrolltarget" v-show="!getSearchProducts.length && !searchValue"></div>
   </div>
 </template>
 
 <script>
 import Carousel from './Carousel.vue';
 import Products from './Products.vue';
+import Search from './Search.vue';
 import axios from 'axios';
 
 export default {
   components: {
     appCarousel: Carousel,
-    appProducts: Products
+    appProducts: Products,
+    appSearch: Search
+  },
+  computed: {
+    getSearchProducts(){
+      return this.$store.getters.getSearchProducts;
+    }
   },
   data(){
     return {
-      myObserver: null
+      myObserver: null,
+      searchValue: ''
     }
   },
   methods: {
+    changeSearchValue(e){
+      this.searchValue = e.target.value;
+    },
     scrollTrigger(){
       this.myObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {

@@ -20,7 +20,7 @@
             </div>
           </div>
           <div class="product-price">{{ product.price }} SEK</div>
-          <button class="add-cart-btn" type="button" name="button">Add to cart</button>
+          <button class="add-cart-btn" type="button" name="button" @click="addToCart">Add to cart</button>
         </div>
       </div>
     </div>
@@ -59,6 +59,16 @@ export default {
     },
     decrementQuantity(){
       this.quantity > 1 ? this.quantity-- : null;
+    },
+    addToCart(){
+      let orderItem = {
+        id: this.product._id,
+        name: this.product.name,
+        price: this.product.price,
+        quantity: this.quantity
+      }
+      console.log(this.product)
+      this.$store.dispatch('addToCart', orderItem);
     }
   },
   created(){
@@ -191,12 +201,10 @@ export default {
   font-size: 2rem;
   background: rgba(255, 255, 255, 0.1);
   color: #c3c8c9;
-  /* height: 100%; */
   padding: 15px 20px;
 }
 .add-cart-btn{
   font-size: 2rem;
-  background: none;
   border: none;
   color: #fff;
   background: rgba(97, 137, 47, 1);
