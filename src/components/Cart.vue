@@ -22,7 +22,7 @@
         </span>
         <span class="total-price">
           {{ getTotalCost }}
-          <button class="checkout-btn" type="button" name="button">Checkout</button>
+          <button class="checkout-btn" type="button" name="button" @click="goCheckout">Checkout</button>
         </span>
       </div>
     </div>
@@ -42,6 +42,9 @@ export default {
   methods: {
     removeCartItem(id){
       this.$store.dispatch('removeCartItem', id);
+    },
+    goCheckout(){
+      this.$router.push({name: 'checkout'});
     }
   }
 }
@@ -135,7 +138,7 @@ td{
   background: rgba(97, 137, 47, 1);
   padding: 15px 20px;
   font-size: 2rem;
-  color: #fff;
+  color: #e9f0e2;
   cursor: pointer;
 }
 .checkout-btn:hover{

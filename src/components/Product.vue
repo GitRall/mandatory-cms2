@@ -34,13 +34,18 @@
         No images found
       </div>
     </div>
+    <app-reviews v-if="Object.keys(product).length" :product="product"></app-reviews>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import Reviews from './Reviews.vue';
 
 export default {
+  components: {
+    appReviews: Reviews
+  },
   data(){
     return {
       product: {},
@@ -74,7 +79,7 @@ export default {
   created(){
     const cockpitToken = '85c29250363d95b2b63ff2c7cb2016';
     axios.post(`http://localhost:8080/api/collections/get/products?token=${cockpitToken}`, {
-      filter: {_id: this.$route.params.id}
+      filter: {_id: this.$route.params.id},
     })
     .then((res) => {
       this.product = res.data.entries[0];
@@ -87,7 +92,7 @@ export default {
 
 <style lang="css" scoped>
 .product-container{
-  width: 100vw;
+  max-width: 100vw;
   min-height: 100vh;
   background: rgb(34,38,41);
   background: linear-gradient(32deg, rgba(34,38,41,1) 16%, rgba(71,75,79,1) 82%);
@@ -206,7 +211,7 @@ export default {
 .add-cart-btn{
   font-size: 2rem;
   border: none;
-  color: #fff;
+  color: #e9f0e2;
   background: rgba(97, 137, 47, 1);
   padding: 15px 20px;
   cursor: pointer;

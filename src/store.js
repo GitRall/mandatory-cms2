@@ -34,7 +34,13 @@ export const store = new Vuex.Store({
   },
   mutations: {
     cartInit(state){
-      state.cart = JSON.parse(localStorage.getItem('gameShopCart'));
+      let cartItems = JSON.parse(localStorage.getItem('gameShopCart'));
+      if(!cartItems){
+        state.cart = [];
+      }
+      else{
+        state.cart = cartItems;
+      }
     },
     setProducts(state, payload){
       payload.forEach((item) => {
@@ -53,6 +59,10 @@ export const store = new Vuex.Store({
         state.cart[foundIdx].quantity += payload.quantity;
       }
       localStorage.setItem('gameShopCart', JSON.stringify(state.cart))
+    },
+    clearCart(state){
+      state.cart = [];
+      localStorage.removeItem('gameShopCart');
     },
     removeCartItem(state, id){
       let foundIdx = state.cart.findIndex((item) => item.id === id);
@@ -80,6 +90,9 @@ export const store = new Vuex.Store({
     },
     addToCart({ commit }, payload){
       commit('addToCart', payload);
+    },
+    clearCart({ commit }){
+      commit('clearCart');
     },
     removeCartItem({ commit }, payload){
       commit('removeCartItem', payload);

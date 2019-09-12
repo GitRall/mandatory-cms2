@@ -12,16 +12,6 @@ export default {
     searchValue: String,
     changeSearchValue: Function
   },
-  // data(){
-  //   return {
-  //     searchValue: ''
-  //   }
-  // },
-  methods: {
-    test(){
-      console.log('heeej');
-    }
-  },
   watch: {
     searchValue(newSearchValue, oldSearchValue){
       if(newSearchValue){
@@ -29,7 +19,8 @@ export default {
         axios.post(`http://localhost:8080/api/collections/get/products?token=${cockpitToken}`,{
           filter: {
             name: { $regex: newSearchValue }
-          }
+          },
+          sort: {_created: -1}
         })
         .then((res) => {
           console.log(res);
