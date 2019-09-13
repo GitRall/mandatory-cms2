@@ -13,6 +13,7 @@
 
 <script>
 import axios from 'axios';
+import {cockpitToken, cockpitRootUrl} from '../constants';
 
 export default {
   data(){
@@ -52,8 +53,7 @@ export default {
     }
   },
   created(){
-    const cockpitToken = '85c29250363d95b2b63ff2c7cb2016';
-    axios.post(`http://localhost:8080/api/collections/get/carousel?token=${cockpitToken}`)
+    axios.post(`${cockpitRootUrl}api/collections/get/carousel?token=${cockpitToken}`)
       .then((res) => {
         this.images = res.data.entries;
         this.startTimer();

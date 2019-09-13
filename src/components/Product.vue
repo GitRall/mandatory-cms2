@@ -13,20 +13,20 @@
         </div>
         <div class="purchase-wrapper">
           <div class="quantity-wrapper">
-            <input class="product-quantity" disabled type="number" min="1" v-model="quantity">
+            <input class="product-quantity" disabled type="number" min="1" :max="product.stock" v-model="quantity">
             <div class="quantity-actions-wrapper">
-              <button class="quantity-action" @click="incrementQuantity()"><i class="material-icons">arrow_drop_up</i></button>
-              <button class="quantity-action" @click="decrementQuantity()"><i class="material-icons">arrow_drop_down</i></button>
+              <button class="quantity-action" @click="incrementQuantity()" :disabled="product.stock <= 0"><i class="material-icons">arrow_drop_up</i></button>
+              <button class="quantity-action" @click="decrementQuantity()" :disabled="product.stock <= 0"><i class="material-icons">arrow_drop_down</i></button>
             </div>
           </div>
           <div class="product-price">{{ product.price }} SEK</div>
-          <button class="add-cart-btn" type="button" name="button" @click="addToCart">Add to cart</button>
+          <button class="add-cart-btn" type="button" name="button" @click="addToCart" :disabled="product.stock <= 0">Add to cart</button>
         </div>
       </div>
     </div>
     <div class="product-wrapper" v-if="product.gallery">
       <div class="product-gallery">
-        <img class="gallery-img" v-for="galleryImg in product.gallery" :src="`http://localhost:8080/${galleryImg.path}`" alt="">
+        <img class="gallery-img" v-for="galleryImg in product.gallery" :src="`http://localhost:8080/${galleryImg.path}`" :key="galleryImg.meta.asset" @click="openGalleryImg(galleryImg.path)">
       </div>
     </div>
     <div class="product-wrapper" v-else>
@@ -35,21 +35,27 @@
       </div>
     </div>
     <app-reviews v-if="Object.keys(product).length" :product="product"></app-reviews>
+    <app-img-overlay v-if="galleryImgOpen" :galleryImgUrl="galleryImgUrl" :closeGalleryImg="closeGalleryImg"></app-img-overlay>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import Reviews from './Reviews.vue';
+import ImageOverlay from './ImageOverlay.vue';
+import {cockpitToken, cockpitRootUrl} from '../constants';
 
 export default {
   components: {
-    appReviews: Reviews
+    appReviews: Reviews,
+    appImgOverlay: ImageOverlay
   },
   data(){
     return {
       product: {},
-      quantity: 1
+      quantity: 1,
+      galleryImgOpen: false,
+      galleryImgUrl: ''
     }
   },
   computed: {
@@ -58,6 +64,14 @@ export default {
     }
   },
   methods: {
+    openGalleryImg(url){
+      this.galleryImgUrl = url;
+      this.galleryImgOpen = true;
+    },
+    closeGalleryImg(){
+      this.galleryImgOpen = false;
+      this.galleryImgUrl = '';
+    },
     incrementQuantity(){
       if(this.quantity === parseInt(this.product.stock)) return
       this.quantity++;
@@ -66,24 +80,22 @@ export default {
       this.quantity > 1 ? this.quantity-- : null;
     },
     addToCart(){
+      if(parseInt(this.product.stock) === 0 || parseInt(this.product.stock) < this.quantity) return;
       let orderItem = {
         id: this.product._id,
         name: this.product.name,
         price: this.product.price,
         quantity: this.quantity
       }
-      console.log(this.product)
       this.$store.dispatch('addToCart', orderItem);
     }
   },
   created(){
-    const cockpitToken = '85c29250363d95b2b63ff2c7cb2016';
-    axios.post(`http://localhost:8080/api/collections/get/products?token=${cockpitToken}`, {
+    axios.post(`${cockpitRootUrl}api/collections/get/products?token=${cockpitToken}`, {
       filter: {_id: this.$route.params.id},
     })
     .then((res) => {
       this.product = res.data.entries[0];
-      console.log(this.product);
     })
 
   }
@@ -92,6 +104,7 @@ export default {
 
 <style lang="css" scoped>
 .product-container{
+  position: relative;
   max-width: 100vw;
   min-height: 100vh;
   background: rgb(34,38,41);
@@ -129,11 +142,16 @@ export default {
   color: #c3c8c9;
 }
 .product-gallery{
-  padding: 30px;
+  font-size: 2rem;
 }
 .gallery-img{
   height: 200px;
   margin: 10px;
+  opacity: 0.8;
+  cursor: pointer;
+}
+.gallery-img:hover{
+  opacity: 1;
 }
 .no-img-msg{
   display: flex;
@@ -199,7 +217,10 @@ export default {
   color: #fff;
   cursor: pointer;
 }
-
+.quantity-action:disabled{
+  opacity: 0.5;
+  cursor: default;
+}
 .product-price{
   display: flex;
   align-items: center;
@@ -219,5 +240,8 @@ export default {
 .add-cart-btn:hover{
   background: rgba(97, 137, 47, 0.8);
 }
-
+.add-cart-btn:disabled{
+  opacity: 0.5;
+  cursor: default;
+}
 </style>

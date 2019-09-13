@@ -31,14 +31,25 @@
 <script>
 export default {
   props: {
-    searchValue: String
+    searchValue: String,
+    inStockOnly: Boolean
   },
   computed: {
     getProducts(){
-      return this.$store.getters.getProducts;
+      if(this.inStockOnly){
+        return this.$store.getters.getProducts.filter((item) => item.stock > 0)
+      }
+      else{
+        return this.$store.getters.getProducts;
+      }
     },
     getSearchProducts(){
-      return this.$store.getters.getSearchProducts;
+      if(this.inStockOnly){
+        return this.$store.getters.getSearchProducts.filter((item) => item.stock > 0)
+      }
+      else{
+        return this.$store.getters.getSearchProducts;
+      }
     }
   }
 }

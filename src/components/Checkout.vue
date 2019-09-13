@@ -14,6 +14,7 @@
 
 <script>
 import axios from 'axios';
+import {cockpitToken, cockpitRootUrl} from '../constants';
 
 export default {
   data(){
@@ -21,9 +22,6 @@ export default {
       name: '',
       address: ''
     }
-  },
-  created(){
-    console.log(this.$store.getters.getCart);
   },
   methods: {
     sendOrder(){
@@ -47,14 +45,27 @@ export default {
           totalPrice: this.$store.getters.getTotalCost,
           products: mappedProducts
         }
-        const cockpitToken = '85c29250363d95b2b63ff2c7cb2016';
-        axios.post(`http://localhost:8080/api/collections/save/orders?token=${cockpitToken}`, { data: orderObj })
-          .then((res) => {
-            console.log(res);
+        axios.post(`${cockpitRootUrl}api/collections/save/orders?token=${cockpitToken}`, { data: orderObj })
+          .then(() => {
+            this.$store.getters.getCart.forEach((item) => {
+              axios.post(`${cockpitRootUrl}api/collections/get/products?token=${cockpitToken}`, {
+                filter: {_id: item.id}
+              })
+              .then((res) => {
+                let newStock = res.data.entries[0].stock - item.quantity;
+                axios.post(`${cockpitRootUrl}api/collections/save/products?token=${cockpitToken}`, {
+                  data: {
+                    _id: res.data.entries[0]._id,
+                    stock: newStock
+                  }
+                })
+              })
+            })
             this.$store.dispatch('clearCart');
+            this.$router.push({name: 'orderSent'});
           })
+        }
       }
-    }
   }
 }
 </script>

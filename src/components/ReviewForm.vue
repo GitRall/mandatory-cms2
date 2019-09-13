@@ -1,10 +1,9 @@
 <template lang="html">
   <form class="review-form-wrapper" @submit.prevent="sendReview()">
     <label class="review-form-label">Title</label>
-    <input class="review-form-input" type="text" v-model="title">
+    <input class="review-form-input" type="text" v-model="title" required>
     <label class="review-form-label">Content</label>
-    <textarea class="review-form-textarea" rows="8" cols="80" v-model="content"></textarea>
-    <label class="review-form-label">Rating</label>
+    <textarea class="review-form-textarea" rows="8" cols="80" v-model="content" required></textarea>
     <star-rating
     v-model="rating"
     :show-rating="false"
@@ -22,6 +21,7 @@
 <script>
 import StarRating from 'vue-star-rating';
 import axios from 'axios';
+import {cockpitToken, cockpitRootUrl} from '../constants';
 
 export default {
   components: {
@@ -53,15 +53,17 @@ export default {
           newReviews.push(item);
         })
       }
-      const cockpitToken = '85c29250363d95b2b63ff2c7cb2016';
-      axios.post(`http://localhost:8080/api/collections/save/products?token=${cockpitToken}`, {
+      axios.post(`${cockpitRootUrl}api/collections/save/products?token=${cockpitToken}`, {
         data: {
           _id: this.product._id,
           reviews: newReviews
         }
       })
-      .then((res) => {
-        console.log(res);
+      .then(() => {
+        this.product.reviews = newReviews;
+        this.title = '';
+        this.content = '';
+        this.rating = null;
       })
     }
   }

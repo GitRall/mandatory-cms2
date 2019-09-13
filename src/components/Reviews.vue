@@ -4,7 +4,7 @@
     <div class="review-wrapper" v-for="review in product.reviews">
       <h3 class="review-title">{{ review.value.title }}</h3>
       <p class="review-body">{{ review.value.body }}</p>
-      <span class="review-rating" v-html="starRating(review.value.rating)"></span>
+      <span class="review-rating" v-html="starRating(review.value.rating)" v-if="review.value.rating"></span>
     </div>
   </div>
 </template>
@@ -32,9 +32,6 @@ export default {
       }
       return stars;
     }
-  },
-  created(){
-    console.log(this.reviews);
   }
 }
 </script>
